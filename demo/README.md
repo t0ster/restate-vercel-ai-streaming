@@ -38,8 +38,6 @@ curl --fail http://localhost:9070/deployments \
 
 Open http://127.0.0.1:5174.
 
-No build needed; restart the agent after library or agent edits.
-
 Each execution has a client-generated request ID used as Restate's idempotency key.
 Network retries reuse it; confirmed terminal failures get a new ID on retry.
 The same ID returns the original outcome, even if the input changes, within
@@ -50,4 +48,3 @@ reattaches with the same request ID, showing loading or the recorded failure.
 Successful completion saves history and clears the current turn.
 
 Local demo only: no authentication or live reconnect.
-Do not expose the backend or Restate handler to the Internet.

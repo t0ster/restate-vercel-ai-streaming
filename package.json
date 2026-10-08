@@ -1,6 +1,6 @@
 {
   "name": "restate-vercel-ai-streaming",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Durable AI SDK streaming with Restate",
   "type": "module",
   "license": "MIT",

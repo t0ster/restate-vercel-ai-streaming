@@ -10,7 +10,7 @@ import {
 } from 'ai';
 import superjson from 'superjson';
 
-/** Restate serialization preserving SuperJSON-supported values; not runtime validation. */
+/** Restate serialization preserving SuperJSON-supported values. */
 export class SuperJsonSerde<T> implements Serde<T> {
   contentType = 'application/json';
 
@@ -27,10 +27,6 @@ export class SuperJsonSerde<T> implements Serde<T> {
  * Streams AI SDK UI events while recording completed model responses in Restate.
  * Complete tool calls are released only after persistence; tool side effects
  * still require their own durable boundaries.
- *
- * Cancelling the UI reader detaches presentation without cancelling execution.
- * Buffers are unbounded, replay republishes UI events, provider HTTP metadata is
- * not forwarded, and interrupted work may repeat provisional output.
  */
 export function durableStreamText({
   ctx,
