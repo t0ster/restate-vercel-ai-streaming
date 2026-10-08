@@ -1,0 +1,19 @@
+diff --git a/src/durable-stream-text.ts b/src/durable-stream-text.ts
+index e2590a2..961f1a8 100644
+--- a/src/durable-stream-text.ts
++++ b/src/durable-stream-text.ts
+@@ -63,7 +63,14 @@ export function durableStreamText({
+ 
+   const response = (async () => {
+     try {
++      const idSeed = ctx.rand.uuidv4();
++      let idSequence = 0;
+       const result = streamText({
++        // The SDK's private hook keeps approval and other generated IDs stable on replay.
++        // Use a local sequence so ID generation never calls ctx inside a model run.
++        // TODO: Verify approval IDs match UI and saved history across a real Restate restart,
++        // including multi-step generation and approval submission after replay.
++        _internal: { generateId: () => `${idSeed}-${idSequence++}` },
+         model: wrapLanguageModel({
+           model,
+           middleware: {

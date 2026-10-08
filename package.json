@@ -1,0 +1,55 @@
+{
+  "name": "restate-vercel-ai-streaming",
+  "version": "0.1.0",
+  "description": "Durable AI SDK streaming with Restate",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "bun@1.4.2",
+  "workspaces": [
+    "demo"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check . && bun run typecheck && bun run check:demo",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "check:demo": "bun run --cwd demo typecheck",
+    "demo:agent": "bun run --cwd demo agent",
+    "demo:backend": "bun run --cwd demo backend",
+    "demo:ui": "bun run --cwd demo ui",
+    "prepublishOnly": "bun run check && bun run build"
+  },
+  "dependencies": {
+    "superjson": "^2.2.2"
+  },
+  "peerDependencies": {
+    "@ai-sdk/provider": "^4.0.25",
+    "@restatedev/restate-sdk": "^1.16.2",
+    "ai": "^7.0.133"
+  },
+  "devDependencies": {
+    "@ai-sdk/provider": "4.0.25",
+    "@biomejs/biome": "^2.5.15",
+    "@restatedev/restate-sdk": "1.16.2",
+    "@types/node": "^24.0.10",
+    "ai": "7.0.133",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
