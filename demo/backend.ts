@@ -3,8 +3,13 @@
 
 import { randomUUID } from 'node:crypto';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { connect, rpc } from '@restatedev/restate-sdk-clients';
 import { createUIMessageStream, pipeUIMessageStreamToResponse, type UIMessageChunk } from 'ai';
 import { createClient } from 'redis';
+import type { ChatService } from './agent.ts';
+
+const restate = connect({ url: process.env.RESTATE_INGRESS_URL ?? 'http://localhost:8082' });
+const chatService: ChatService = { name: 'DurableStreamingChatDemo' };
 
 async function getChatHistory(request: IncomingMessage, response: ServerResponse): Promise<void> {
   const url = new URL(request.url ?? '/', 'http://localhost');
@@ -14,11 +19,9 @@ async function getChatHistory(request: IncomingMessage, response: ServerResponse
     return;
   }
   try {
-    const history = await fetch(
-      `http://localhost:8082/DurableStreamingChatDemo/${encodeURIComponent(chatId)}/history`,
-    );
-    response.writeHead(history.status, { 'content-type': 'application/json' });
-    response.end(await history.text());
+    const history = await restate.objectClient(chatService, chatId).history();
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end(JSON.stringify(history));
   } catch (error) {
     console.error('Demo history request failed:', error);
     response.writeHead(502).end('History unavailable');
@@ -57,7 +60,6 @@ async function streamChat(request: IncomingMessage, response: ServerResponse): P
 
   const { message, requestId, chatId } = input;
   const channel = `durable-streaming-demo:${randomUUID()}`;
-  let failureCode = 'delivery-failed';
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
       writer.write({
@@ -94,30 +96,9 @@ async function streamChat(request: IncomingMessage, response: ServerResponse): P
         });
 
         console.log('Subscribed; invoking Restate:', channel);
-        const invocation = await fetch(
-          `http://localhost:8082/DurableStreamingChatDemo/${encodeURIComponent(chatId)}/run`,
-          {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              'idempotency-key': requestId,
-            },
-            body: JSON.stringify({ requestId, message, channel }),
-          },
-        );
-        if (!invocation.ok) {
-          if (invocation.headers.get('x-restate-error-source') === 'invocation') {
-            failureCode = 'execution-failed';
-          }
-          await invocation.body?.cancel();
-          throw new Error(`Demo Restate invocation failed: HTTP ${invocation.status}`);
-        }
-        const result: { uiEvents: UIMessageChunk[] } | { error: 'execution-failed' } =
-          await invocation.json();
-        if ('error' in result) {
-          failureCode = result.error;
-          throw new Error('Demo execution ended with a terminal failure');
-        }
+        const result = await restate
+          .objectClient(chatService, chatId)
+          .run({ requestId, message, channel }, rpc.opts({ idempotencyKey: requestId }));
         // The chat object awaits each publish. Wait for the unsubscribe acknowledgement so
         // preceding messages on this subscription are processed before finish.
         await subscriber.unsubscribe(channel);
@@ -143,7 +124,7 @@ async function streamChat(request: IncomingMessage, response: ServerResponse): P
     },
     onError: (error) => {
       console.error('Demo chat failed:', error);
-      return failureCode;
+      return 'Chat request failed.';
     },
   });
 
@@ -164,6 +145,6 @@ createServer(async (request, response) => {
     return streamChat(request, response);
   }
   response.writeHead(404).end();
-}).listen(3002, '127.0.0.1', () => {
-  console.log('Demo backend: http://localhost:3002/api/chat');
+}).listen(Number(process.env.BACKEND_PORT ?? 3002), '127.0.0.1', () => {
+  console.log(`Demo backend: http://localhost:${process.env.BACKEND_PORT ?? 3002}/api/chat`);
 });

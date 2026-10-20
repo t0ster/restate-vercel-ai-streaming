@@ -13,6 +13,7 @@
     "@ai-sdk/react": "4.0.136",
     "@radix-ui/react-use-controllable-state": "^1.2.6",
     "@restatedev/restate-sdk": "1.16.2",
+    "@restatedev/restate-sdk-clients": "1.16.2",
     "@streamdown/cjk": "^1.0.4",
     "@streamdown/code": "^2.0.0",
     "@streamdown/math": "^1.0.3",

@@ -39,12 +39,22 @@ curl --fail http://localhost:9070/deployments \
 Open http://127.0.0.1:5174.
 
 Each execution has a client-generated request ID used as Restate's idempotency key.
-Network retries reuse it; confirmed terminal failures get a new ID on retry.
+Retry reuses it to retrieve the same invocation and its result or error.
+Sending a new message creates a new request ID.
 The same ID returns the original outcome, even if the input changes, within
 Restate's retention period. Retries wait for completion, not a live stream.
 
 Restate also stores the current turn. Refresh restores its user message and
-reattaches with the same request ID, showing loading or the recorded failure.
+reattaches with the same request ID, showing loading or the recorded error.
 Successful completion saves history and clears the current turn.
 
 Local demo only: no authentication or live reconnect.
+
+The backend uses `@restatedev/restate-sdk-clients` with a type-only import of the
+chat object and `rpc.opts({ idempotencyKey: requestId })`. Restate errors propagate
+through the normal AI SDK stream error handling; the demo does not classify HTTP
+errors or start a new invocation automatically. Redis carries live UI events;
+the invocation result provides recorded events when no live events were received.
+
+Optional environment variables: `RESTATE_INGRESS_URL`, `AGENT_PORT`, and
+`BACKEND_PORT` override the defaults above.

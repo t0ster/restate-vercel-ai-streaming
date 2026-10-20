@@ -104,7 +104,6 @@ function StreamingChatDemo() {
           currentTurn: {
             requestId: string;
             message: UIMessage;
-            status: 'pending' | 'failed';
           } | null;
         } = await response.json();
         if (active) {
@@ -112,7 +111,7 @@ function StreamingChatDemo() {
           setLoaded(true);
           if (currentTurn) {
             requestId.current = currentTurn.requestId;
-            // Reattach even to failed turns: the recorded outcome restores useChat's native error.
+            // Reattach to the same invocation, including its recorded result or error.
             void regenerate({ body: { requestId: requestId.current } });
           }
         }
@@ -297,11 +296,7 @@ function StreamingChatDemo() {
           </PromptInput>
           {(error || historyError || attachmentError) && (
             <p role="alert" className="mt-2 text-sm text-destructive">
-              {error?.message === 'execution-failed'
-                ? 'Execution failed. Retry starts a new execution.'
-                : error?.message === 'delivery-failed'
-                  ? 'Connection failed. Retry retrieves the existing execution.'
-                  : (error?.message ?? historyError ?? attachmentError)}
+              {error?.message ?? historyError ?? attachmentError}
             </p>
           )}
           {error && (
@@ -310,7 +305,6 @@ function StreamingChatDemo() {
               className="mt-2"
               disabled={busy}
               onClick={() => {
-                if (error.message === 'execution-failed') requestId.current = crypto.randomUUID();
                 void regenerate({ body: { requestId: requestId.current } });
               }}
             >
@@ -318,8 +312,7 @@ function StreamingChatDemo() {
             </Button>
           )}
           <p className="mt-2 text-xs text-muted-foreground">
-            Refresh restores pending turns and waits for their result. Network retries reuse the
-            execution; terminal failures start a new one.
+            Refresh or Retry restores this response. Send a new message to start again.
           </p>
         </footer>
       </main>
