@@ -28,6 +28,7 @@
         "@ai-sdk/react": "4.0.136",
         "@radix-ui/react-use-controllable-state": "^1.2.6",
         "@restatedev/restate-sdk": "1.16.2",
+        "@restatedev/restate-sdk-clients": "1.16.2",
         "@streamdown/cjk": "^1.0.4",
         "@streamdown/code": "^2.0.0",
         "@streamdown/math": "^1.0.3",
@@ -253,6 +254,8 @@
     "@redis/time-series": ["@redis/time-series@6.3.0", "", { "peerDependencies": { "@redis/client": "^6.3.0" } }, "sha512-+fJOB8mN1z5WRakCJNh5lVdz1KqvHGSOistsKeitD24QsCtPwyRQXWC0iq6T/i/ubLE/YcguZqPm8F598MKk4A=="],
 
     "@restatedev/restate-sdk": ["@restatedev/restate-sdk@1.16.2", "", { "dependencies": { "@restatedev/restate-sdk-core": "1.16.2" } }, "sha512-L2XqUukvdGYmqCqsFvJzTsaU3JiuFzsYSh6nK19Q1yKNOr/bBBZKdic0o0hza5P5QdiiFC5jLHJ5wCWt77IO0Q=="],
+
+    "@restatedev/restate-sdk-clients": ["@restatedev/restate-sdk-clients@1.16.2", "", { "dependencies": { "@restatedev/restate-sdk-core": "1.16.2" } }, "sha512-LWieGNx0nhY1lmQP3V5gtZIvdYBdHIBWwwz+zK+aY8T1Oyl5KrCdY+8ku0P5v85Sc8MBC1GzdHURM5mZRbAxcA=="],
 
     "@restatedev/restate-sdk-core": ["@restatedev/restate-sdk-core@1.16.2", "", {}, "sha512-dytd78+c7x24NFhfj7XpziqYJCY5E4DE2Qd0N6la/hXoF2SbhhM5/Iey82MCwELCEnN7RPfN3+/Th58LQezTQw=="],
 
